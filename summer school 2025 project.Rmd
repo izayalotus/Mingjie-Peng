@@ -1,0 +1,145 @@
+---
+title: "summer school R programming 2025"
+output: html_document
+date: "2025-10-02"
+---
+```{=html}
+<style>
+.h1,h2,h3 {
+color:#2f1a61;
+}
+
+.subtitle, section.normal {
+color:#291854;
+}
+
+.title {
+color:#cc0065;
+}
+
+.pad-box{
+padding: 1em;"
+}
+</style>
+```
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+In this project I am using packages dplyr and ggplot2 to show the data of penguins. 
+
+```{r}
+library(tidyverse)
+```
+
+
+
+```{r, echo=FALSE}
+library(palmerpenguins)
+```
+
+We check the observations of penguins
+
+```{r}
+head(penguins)
+```
+
+Here I am selecting the data of penguins with species, island, year and the data of penguins with all the informations except for sex and species
+
+```{r eval=F}
+dplyr::select(penguins, species, island, year)
+dplyr::select(penguins, -c(sex,species))
+```
+
+Show all the observations of Chinstrap penguins from 2007
+```{r}
+dplyr::filter(penguins, year >= 2007& species == "Chinstrap")
+```
+
+Show the observations of Chinstrap penguins in 2009, including species, sex and year.
+
+```{r}
+penguins %>%
+  dplyr::filter(year == 2009 & species == "Chinstrap") %>%
+  dplyr::select(species, sex, year)
+```
+
+Overwrite the weight of penguins in pounds.
+
+```{r}
+penguins %>%
+  dplyr::mutate(body_mass_kg = body_mass_g/1000,
+                body_mass_lbs = body_mass_kg/453,
+                body_mass_kg = "Overwrite")
+```
+
+Grouping the penguin by species and summarize their heaviest penguin. 
+
+```{r}
+penguins %>%
+  dplyr::group_by(species) %>%
+  dplyr::summarize(heaviest_penguin = max(body_mass_g, na.rm = T), .groups = "drop")
+```
+
+Create a data frame arranged by body_mass_g of the penguins observed in the "Dream" island.
+
+```{r}
+penguins %>%
+  dplyr::filter(island == "Dream") %>%
+  dplyr::arrange(desc(body_mass_g))
+```
+
+Find out the longest observed bill of a Gentoo penguin in 2008.
+
+```{r}
+penguins %>%
+  dplyr::filter(species == "Gentoo" & year == 2008) %>%
+  dplyr::arrange(desc(bill_length_mm))
+```
+
+Find out the shortest observed bill of a Gentoo penguin in 2008.
+
+```{r}
+penguins %>%
+  dplyr::filter(species == "Gentoo" & year == 2008) %>%
+  dplyr::pull(bill_length_mm) %>%
+  min(., na.rm = T)
+```
+
+Subset rows 3, 5 and 6.
+
+```{r}
+penguins %>% slice(c(3, 5, 6))
+```
+
+returns vector with distinct species and  returns vector with distinct species + count in data.
+
+```{r}
+penguins %>% dplyr::distinct(species)
+penguins %>% dplyr::count(species)
+
+```
+
+Showing the relationship between the length of a penguin's flipper and their weight.
+
+```{r}
+ggplot(penguins, aes(x = flipper_length_mm, y=body_mass_g)) +
+  geom_point()
+```
+
+Pesenting the weight distribution of penguins with histogram.
+
+```{r distribution-plot}
+ggplot(penguins, aes(x = body_mass_g)) +
+  geom_histogram(bins = 15, fill = "#FF6634", color = "black")
+```
+
+Showing the distribution of flipper length by species
+
+```{r box-plot}
+ggplot(penguins, aes(x = species, y = flipper_length_mm)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(x = "Species",
+       y = "flipper length (mm)")
+```
